@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Davis and Arnobs Spectacular Game</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#1a1a1a;color:#e0e0e0;font-family:sans-serif}
+#game{font-family:sans-serif;padding:1.5rem 1rem;max-width:680px;margin:0 auto}
+
+#name-setup{background:#2a2a2a;border:0.5px solid #444;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem}
+#name-setup label{font-size:12px;color:#aaa;font-family:'DM Mono',monospace;display:block;margin-bottom:5px}
+.name-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.name-row input{padding:8px 10px;border-radius:8px;border:0.5px solid #555;font-size:14px;background:#1a1a1a;color:#e0e0e0}
+.name-row input.p1-inp{border-color:#185FA5}
+.name-row input.p2-inp{border-color:#993556}
+#win-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+#win-row label{font-size:13px;color:#aaa;font-family:'DM Mono',monospace;white-space:nowrap}
+#win-target{width:64px;padding:7px 10px;border-radius:8px;border:0.5px solid #555;font-size:14px;background:#1a1a1a;color:#e0e0e0;font-family:'DM Mono',monospace}
+#start-game-btn{width:100%;padding:10px;border-radius:8px;border:0.5px solid #555;background:#1a1a1a;font-size:14px;font-family:'DM Mono',monospace;font-weight:500;cursor:pointer;color:#e0e0e0}
+#start-game-btn:hover{background:#333}
+
+#stage{text-align:center;margin-bottom:1.5rem}
+#prompt-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#777;margin-bottom:6px;font-family:'DM Mono',monospace}
+#word-display{font-family:'Bebas Neue',sans-serif;font-size:64px;line-height:1;color:#e0e0e0;letter-spacing:.04em;min-height:72px;transition:opacity .2s}
+#word-display.flash{opacity:0}
+#cat-tag{display:inline-block;font-size:11px;padding:3px 10px;border-radius:999px;background:#2a2a2a;border:0.5px solid #555;color:#aaa;margin-top:6px;font-family:'DM Mono',monospace}
+#win-progress{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;font-size:12px;color:#777;font-family:'DM Mono',monospace}
+
+.players{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+.pcard{border-radius:12px;border:0.5px solid #444;background:#1a1a1a;padding:1rem;transition:border-color .2s,background .15s;position:relative}
+.pcard.p1a{border-color:#378ADD;background:#0d1f33}
+.pcard.p2a{border-color:#D4537E;background:#2a0d1a}
+.plabel{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#777;margin-bottom:3px;font-family:'DM Mono',monospace}
+.pname{font-size:17px;font-weight:500;color:#e0e0e0;margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.score-area{position:absolute;top:10px;right:12px;text-align:right}
+.score-num{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;color:#666}
+.score-pips{display:flex;gap:3px;justify-content:flex-end;margin-top:3px;flex-wrap:wrap;max-width:80px}
+.pip{width:8px;height:8px;border-radius:50%}
+.pip.p1f{background:#378ADD}
+.pip.p2f{background:#D4537E}
+.pip.empty{background:#2a2a2a;border:0.5px solid #555}
+.buzz-btn{width:100%;padding:10px;border-radius:8px;border:0.5px solid #555;background:#1a1a1a;font-size:13px;font-family:'DM Mono',monospace;font-weight:500;cursor:pointer;color:#e0e0e0;transition:background .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:6px}
+.buzz-btn:active{transform:scale(.97)}
+.buzz-btn.p1{border-color:#185FA5;color:#85B7EB;background:#0d1f33}
+.buzz-btn.p2{border-color:#993556;color:#ED93B1;background:#2a0d1a}
+.buzz-btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.key-hint{font-size:11px;color:#666;margin-top:5px;text-align:center;font-family:'DM Mono',monospace}
+
+#input-zone{display:none;margin-bottom:1rem}
+#input-zone.vis{display:block}
+#active-banner{font-size:12px;letter-spacing:.1em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:8px;text-align:center;font-weight:500}
+#active-banner.p1{color:#85B7EB}
+#active-banner.p2{color:#ED93B1}
+#song-input{width:100%;padding:12px 14px;border-radius:8px;border:0.5px solid #555;font-size:15px;font-family:sans-serif;background:#1a1a1a;color:#e0e0e0;outline:none;transition:border-color .15s,box-shadow .15s}
+#song-input.p1f:focus{border-color:#378ADD;box-shadow:0 0 0 3px rgba(55,138,221,.15)}
+#song-input.p2f:focus{border-color:#D4537E;box-shadow:0 0 0 3px rgba(212,83,126,.15)}
+#timer-wrap{height:4px;background:#2a2a2a;border-radius:2px;margin-top:8px;overflow:hidden}
+#timer-bar{height:100%;width:100%;border-radius:2px;transition:width .1s linear;background:#378ADD}
+#timer-bar.p2c{background:#D4537E}
+#submit-btn{width:100%;margin-top:10px;padding:11px;border-radius:8px;border:0.5px solid #555;background:#2a2a2a;font-size:14px;font-family:'DM Mono',monospace;font-weight:500;cursor:pointer;color:#e0e0e0;transition:background .15s}
+#submit-btn:disabled{opacity:.4;cursor:not-allowed}
+#submit-btn:not(:disabled):hover{background:#333}
+
+#result-zone{display:none;border-radius:12px;border:0.5px solid #444;background:#1a1a1a;padding:1rem 1.25rem;margin-bottom:1rem}
+#result-zone.vis{display:block}
+#result-zone.suc{border-color:#639922;background:#1a2a0a}
+#result-zone.fail{border-color:#E24B4A;background:#2a0a0a}
+#result-title{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#e0e0e0;margin-bottom:3px}
+#result-zone.suc #result-title{color:#97C459}
+#result-zone.fail #result-title{color:#F09595}
+#result-detail{font-size:13px;color:#aaa;font-family:'DM Mono',monospace}
+#result-zone.suc #result-detail{color:#639922}
+#result-zone.fail #result-detail{color:#E24B4A}
+
+#status-msg{text-align:center;font-size:12px;color:#666;font-family:'DM Mono',monospace;min-height:18px;margin-bottom:.5rem}
+#next-btn{width:100%;padding:11px;border-radius:8px;border:0.5px solid #555;background:#2a2a2a;font-size:14px;font-family:'DM Mono',monospace;font-weight:500;cursor:pointer;color:#e0e0e0;display:none}
+#next-btn.vis{display:block}
+#next-btn:hover{background:#333}
+
+#win-screen{display:none;text-align:center;padding:2rem 1rem}
+#win-screen.vis{display:block}
+#win-crown{font-family:'Bebas Neue',sans-serif;font-size:80px;line-height:1;margin-bottom:.5rem}
+#win-crown.p1c{color:#378ADD}
+#win-crown.p2c{color:#D4537E}
+#win-name{font-family:'Bebas Neue',sans-serif;font-size:36px;color:#e0e0e0;margin-bottom:.25rem}
+#win-sub{font-size:13px;color:#aaa;font-family:'DM Mono',monospace;margin-bottom:1.5rem}
+#play-again-btn{padding:11px 28px;border-radius:8px;border:0.5px solid #555;background:#2a2a2a;font-size:14px;font-family:'DM Mono',monospace;font-weight:500;cursor:pointer;color:#e0e0e0}
+#play-again-btn:hover{background:#333}
+</style>
+</head>
+<body>
+<div id="game">
+  <div id="name-setup">
+    <div class="name-row">
+      <div>
+        <label>Player 1 name</label>
+        <input class="p1-inp" id="name-p1" type="text" value="Blue" maxlength="16" />
+      </div>
+      <div>
+        <label>Player 2 name</label>
+        <input class="p2-inp" id="name-p2" type="text" value="Pink" maxlength="16" />
+      </div>
+    </div>
+    <div id="win-row">
+      <label>First to</label>
+      <input id="win-target" type="number" min="1" max="20" value="5" />
+      <label>points wins</label>
+    </div>
+    <button id="start-game-btn">Start game →</button>
+  </div>
+
+  <div id="main-game" style="display:none">
+    <div id="stage">
+      <div id="prompt-label">Name a song that contains this word</div>
+      <div id="word-display">—</div>
+      <div id="cat-tag">buzz in to start</div>
+      <div id="win-progress"></div>
+    </div>
+
+    <div class="players">
+      <div class="pcard" id="card-p1">
+        <div class="score-area">
+          <div class="score-num" id="score-p1">0</div>
+          <div class="score-pips" id="pips-p1"></div>
+        </div>
+        <div class="plabel">Player 1</div>
+        <div class="pname" id="label-p1">Blue</div>
+        <button class="buzz-btn p1" id="buzz-p1">⚡ Buzz — Q</button>
+        <div class="key-hint">press Q</div>
+      </div>
+      <div class="pcard" id="card-p2">
+        <div class="score-area">
+          <div class="score-num" id="score-p2">0</div>
+          <div class="score-pips" id="pips-p2"></div>
+        </div>
+        <div class="plabel">Player 2</div>
+        <div class="pname" id="label-p2">Pink</div>
+        <button class="buzz-btn p2" id="buzz-p2">⚡ Buzz — P</button>
+        <div class="key-hint">press P</div>
+      </div>
+    </div>
+
+    <div id="input-zone">
+      <div id="active-banner">Player 1 — type a song title</div>
+      <input id="song-input" type="text" placeholder="Type a song title..." autocomplete="off" />
+      <div id="timer-wrap"><div id="timer-bar"></div></div>
+      <button id="submit-btn" disabled>Submit</button>
+    </div>
+
+    <div id="result-zone">
+      <div id="result-title">—</div>
+      <div id="result-detail">—</div>
+    </div>
+
+    <div id="status-msg"></div>
+    <button id="next-btn">Next word →</button>
+  </div>
+
+  <div id="win-screen">
+    <div id="win-crown" class="p1c">★</div>
+    <div id="win-name">Blue wins!</div>
+    <div id="win-sub">First to reach the target — well played</div>
+    <button id="play-again-btn">Play again</button>
+  </div>
+</div>
+
+<script>
+const WORDS=[
+  {w:"fire",cat:"emotion"},{w:"rain",cat:"weather"},{w:"heart",cat:"emotion"},
+  {w:"night",cat:"time"},{w:"love",cat:"emotion"},{w:"road",cat:"journey"},
+  {w:"light",cat:"atmosphere"},{w:"sky",cat:"nature"},{w:"dream",cat:"abstract"},
+  {w:"gold",cat:"material"},{w:"soul",cat:"emotion"},{w:"river",cat:"nature"},
+  {w:"city",cat:"place"},{w:"sun",cat:"nature"},{w:"blood",cat:"body"},
+  {w:"stars",cat:"nature"},{w:"wind",cat:"nature"},{w:"home",cat:"place"},
+  {w:"broken",cat:"emotion"},{w:"dark",cat:"atmosphere"},{w:"memory",cat:"abstract"},
+  {w:"dance",cat:"action"},{w:"smile",cat:"expression"},{w:"midnight",cat:"time"},
+  {w:"forever",cat:"time"},{w:"alive",cat:"state"},{w:"tears",cat:"emotion"},
+  {w:"wild",cat:"quality"},{w:"stone",cat:"material"},{w:"floor",cat:"place"},
+  {w:"angel",cat:"abstract"},{w:"baby",cat:"person"},{w:"back",cat:"direction"},
+  {w:"beautiful",cat:"quality"},{w:"believe",cat:"abstract"},{w:"black",cat:"color"},
+  {w:"blue",cat:"color"},{w:"boy",cat:"person"},{w:"burn",cat:"action"},
+  {w:"california",cat:"place"},{w:"calm",cat:"emotion"},{w:"chase",cat:"action"},
+  {w:"cold",cat:"weather"},{w:"come",cat:"action"},{w:"crash",cat:"action"},
+  {w:"cry",cat:"action"},{w:"dead",cat:"state"},{w:"demons",cat:"abstract"},
+  {w:"desire",cat:"emotion"},{w:"diamond",cat:"material"},{w:"die",cat:"action"},
+  {w:"dizzy",cat:"state"},{w:"empty",cat:"state"},{w:"escape",cat:"action"},
+  {w:"eyes",cat:"body"},{w:"fade",cat:"action"},{w:"fall",cat:"action"},
+  {w:"fame",cat:"abstract"},{w:"fast",cat:"quality"},{w:"feel",cat:"action"},
+  {w:"fight",cat:"action"},{w:"fly",cat:"action"},{w:"free",cat:"state"},
+  {w:"frozen",cat:"state"},{w:"ghost",cat:"abstract"},{w:"girl",cat:"person"},
+  {w:"glory",cat:"abstract"},{w:"gone",cat:"state"},{w:"goodbye",cat:"expression"},
+  {w:"happy",cat:"emotion"},{w:"hate",cat:"emotion"},{w:"heaven",cat:"place"},
+  {w:"hero",cat:"person"},{w:"high",cat:"state"},{w:"hold",cat:"action"},
+  {w:"holy",cat:"quality"},{w:"hope",cat:"emotion"},{w:"hot",cat:"weather"},
+  {w:"hurt",cat:"emotion"},{w:"ice",cat:"nature"},{w:"jump",cat:"action"},
+  {w:"king",cat:"person"},{w:"kiss",cat:"action"},{w:"last",cat:"time"},
+  {w:"life",cat:"abstract"},{w:"lonely",cat:"emotion"},{w:"lost",cat:"state"},
+  {w:"loud",cat:"quality"},{w:"magic",cat:"abstract"},{w:"man",cat:"person"},
+  {w:"mind",cat:"abstract"},{w:"money",cat:"material"},{w:"moon",cat:"nature"},
+  {w:"morning",cat:"time"},{w:"mountain",cat:"nature"},{w:"move",cat:"action"},
+  {w:"name",cat:"abstract"},{w:"new",cat:"quality"},{w:"ocean",cat:"nature"},
+  {w:"only",cat:"quality"},{w:"pain",cat:"emotion"},{w:"paradise",cat:"place"},
+  {w:"party",cat:"action"},{w:"power",cat:"abstract"},{w:"pretty",cat:"quality"},
+  {w:"queen",cat:"person"},{w:"quiet",cat:"quality"},{w:"red",cat:"color"},
+  {w:"ride",cat:"action"},{w:"rise",cat:"action"},{w:"rock",cat:"material"},
+  {w:"run",cat:"action"},{w:"sad",cat:"emotion"},{w:"save",cat:"action"},
+  {w:"scream",cat:"action"},{w:"shadow",cat:"atmosphere"},{w:"shine",cat:"action"},
+  {w:"silver",cat:"material"},{w:"sing",cat:"action"},{w:"sleep",cat:"action"},
+  {w:"slow",cat:"quality"},{w:"smoke",cat:"atmosphere"},{w:"snow",cat:"weather"},
+  {w:"somebody",cat:"person"},{w:"song",cat:"abstract"},{w:"sorry",cat:"expression"},
+  {w:"space",cat:"nature"},{w:"storm",cat:"weather"},{w:"sugar",cat:"material"},
+  {w:"summer",cat:"time"},{w:"sweet",cat:"quality"},{w:"thunder",cat:"weather"},
+  {w:"time",cat:"abstract"},{w:"tonight",cat:"time"},{w:"touch",cat:"action"},
+  {w:"truth",cat:"abstract"},{w:"under",cat:"direction"},{w:"universe",cat:"nature"},
+  {w:"victim",cat:"person"},{w:"voice",cat:"body"},{w:"war",cat:"abstract"},
+  {w:"water",cat:"nature"},{w:"white",cat:"color"},{w:"wings",cat:"nature"},
+  {w:"winter",cat:"time"},{w:"wish",cat:"abstract"},{w:"woman",cat:"person"},
+  {w:"wonder",cat:"emotion"},{w:"world",cat:"abstract"},{w:"young",cat:"quality"}
+];
+
+let activePlayer=null, timerInterval=null, buzzLocked=false, currentWord=null;
+let scores=[0,0], winTarget=5, names=["Blue","Pink"];
+
+const $=id=>document.getElementById(id);
+const nameSetup=$("name-setup");
+const nameP1=$("name-p1"), nameP2=$("name-p2"), winTargetInp=$("win-target");
+const startGameBtn=$("start-game-btn"), mainGame=$("main-game");
+const wordDisplay=$("word-display"), catTag=$("cat-tag"), winProgress=$("win-progress");
+const buzzP1=$("buzz-p1"), buzzP2=$("buzz-p2"), cardP1=$("card-p1"), cardP2=$("card-p2");
+const labelP1=$("label-p1"), labelP2=$("label-p2");
+const scoreP1=$("score-p1"), scoreP2=$("score-p2");
+const pipsP1=$("pips-p1"), pipsP2=$("pips-p2");
+const inputZone=$("input-zone"), activeBanner=$("active-banner"), songInput=$("song-input");
+const timerBar=$("timer-bar"), submitBtn=$("submit-btn");
+const resultZone=$("result-zone"), resultTitle=$("result-title"), resultDetail=$("result-detail");
+const statusMsg=$("status-msg"), nextBtn=$("next-btn");
+const winScreen=$("win-screen"), winCrown=$("win-crown"), winName=$("win-name"), winSub=$("win-sub");
+const playAgainBtn=$("play-again-btn");
+
+startGameBtn.addEventListener("click",()=>{
+  names[0]=nameP1.value.trim()||"Blue";
+  names[1]=nameP2.value.trim()||"Pink";
+  winTarget=Math.max(1,parseInt(winTargetInp.value)||5);
+  labelP1.textContent=names[0];
+  labelP2.textContent=names[1];
+  nameSetup.style.display="none";
+  mainGame.style.display="block";
+  scores=[0,0];
+  updateScores();
+  loadNewWord();
+});
+
+function updateScores(){
+  scoreP1.textContent=scores[0];
+  scoreP2.textContent=scores[1];
+  renderPips(pipsP1,scores[0],winTarget,"p1f");
+  renderPips(pipsP2,scores[1],winTarget,"p2f");
+  winProgress.textContent=`first to ${winTarget} wins`;
+}
+
+function renderPips(container,score,total,cls){
+  container.innerHTML="";
+  for(let i=0;i<total;i++){
+    const d=document.createElement("div");
+    d.className="pip "+(i<score?cls:"empty");
+    container.appendChild(d);
+  }
+}
+
+function loadNewWord(){
+  wordDisplay.classList.add("flash");
+  setTimeout(()=>{
+    currentWord=WORDS[Math.floor(Math.random()*WORDS.length)];
+    wordDisplay.textContent=currentWord.w.toUpperCase();
+    catTag.textContent=currentWord.cat;
+    wordDisplay.classList.remove("flash");
+  },200);
+  resetRound();
+}
+
+let buzzTimerInterval=null;
+let buzzTimeLeft=30;
+
+function startBuzzTimer(){
+  clearInterval(buzzTimerInterval);
+  buzzTimeLeft=30;
+  catTag.style.outline="none";
+  buzzTimerInterval=setInterval(()=>{
+    buzzTimeLeft--;
+    catTag.textContent=`${currentWord.cat} — ${buzzTimeLeft}s`;
+    if(buzzTimeLeft<=0){
+      clearInterval(buzzTimerInterval);
+      if(!buzzLocked){
+        buzzP1.disabled=true;
+        buzzP2.disabled=true;
+        statusMsg.textContent="time's up — no one buzzed!";
+        nextBtn.classList.add("vis");
+      }
+    }
+  },1000);
+}
+
+function loadNewWord(){
+  wordDisplay.classList.add("flash");
+  setTimeout(()=>{
+    currentWord=WORDS[Math.floor(Math.random()*WORDS.length)];
+    wordDisplay.textContent=currentWord.w.toUpperCase();
+    catTag.textContent=currentWord.cat;
+    wordDisplay.classList.remove("flash");
+  },200);
+  resetRound();
+  startBuzzTimer();
+}
+
+
+function resetRound(){
+  clearInterval(buzzTimerInterval);
+  clearTimer();
+  activePlayer=null;
+  buzzLocked=false;
+  inputZone.classList.remove("vis");
+  resultZone.classList.remove("vis","suc","fail");
+  nextBtn.classList.remove("vis");
+  songInput.value="";
+  songInput.disabled=false;
+  submitBtn.disabled=true;
+  timerBar.style.width="100%";
+  statusMsg.textContent="buzz in to answer";
+  buzzP1.disabled=false;
+  buzzP2.disabled=false;
+  cardP1.className="pcard";
+  cardP2.className="pcard";
+}
+
+function buzz(p){
+  clearInterval(buzzTimerInterval);
+  catTag.textContent=currentWord.cat;
+  if(buzzLocked)return;
+  buzzLocked=true;
+  activePlayer=p;
+  buzzP1.disabled=true;
+  buzzP2.disabled=true;
+  if(p===1){
+    cardP1.className="pcard p1a";
+    activeBanner.textContent=names[0]+" — type a song title";
+    activeBanner.className="p1";
+    timerBar.className="";
+    songInput.className="p1f";
+  }else{
+    cardP2.className="pcard p2a";
+    activeBanner.textContent=names[1]+" — type a song title";
+    activeBanner.className="p2";
+    timerBar.className="p2c";
+    songInput.className="p2f";
+  }
+  inputZone.classList.add("vis");
+  statusMsg.textContent="";
+  songInput.focus();
+  startTimer();
+}
+
+function startTimer(){
+  timerBar.style.width="100%";
+  clearInterval(timerInterval);
+  const start=Date.now();
+  timerInterval=setInterval(()=>{
+    const r=Math.max(0,5-(Date.now()-start)/1000);
+    timerBar.style.width=(r/5*100)+"%";
+    if(r<=0){clearInterval(timerInterval);timeUp();}
+  },50);
+}
+
+function resetTimer(){clearInterval(timerInterval);startTimer();}
+function clearTimer(){clearInterval(timerInterval);timerInterval=null;}
+
+function timeUp(){
+  songInput.disabled=true;
+  submitBtn.disabled=true;
+  statusMsg.textContent="time's up!";
+  showResult(false,"Time ran out","No points awarded");
+}
+
+songInput.addEventListener("input",()=>{
+  if(!activePlayer)return;
+  resetTimer();
+  submitBtn.disabled=songInput.value.trim().length<2;
+});
+
+submitBtn.addEventListener("click",()=>submitAnswer());
+songInput.addEventListener("keydown",e=>{if(e.key==="Enter"&&!submitBtn.disabled)submitAnswer();});
+
+async function submitAnswer(){
+  clearTimer();
+  songInput.disabled=true;
+  submitBtn.disabled=true;
+
+  const songGuess=songInput.value.trim();
+  if(!songGuess||songGuess.length<2){showResult(false,"Nothing entered","Type a song title!");return;}
+
+  statusMsg.textContent="checking with Genius...";
+
+  try{
+    const resp=await fetch(`http://localhost:3001/search?q=${encodeURIComponent(songGuess)}`);
+    if(!resp.ok){showResult(false,"API error",`Genius returned ${resp.status}`);return;}
+    const data=await resp.json();
+    const hits=data.response.hits;
+    if(hits&&hits.length>0&&hits[0].type==="song"){
+      const top=hits[0].result;
+      const normalize=s=>s.toLowerCase().replace(/[^a-z0-9\s]/g,"").trim();
+const actualNorm=normalize(top.title);
+const guessNorm=normalize(songGuess);
+const wordNorm=normalize(currentWord.w);
+
+// Check if enough words from the guess appear in the title
+const guessWords=guessNorm.split(/\s+/).filter(w=>w.length>1);
+const matchCount=guessWords.filter(w=>actualNorm.includes(w)).length;
+const matchRatio=matchCount/guessWords.length;
+
+if(matchRatio<0.95){
+  showResult(false,"No match",`Genius found "${top.title}" — not quite!`);
+  return;
+}
+if(!actualNorm.replace(/\s/g,"").includes(wordNorm.replace(/\s/g,""))){
+  showResult(false,"Word not in title",`"${top.title}" doesn't contain "${currentWord.w}"`);
+  return;
+}
+if (normalize(songGuess) === normalize(currentWord.w)) {
+    showResult(false, "Simple Guess", `The song title cannot simply be "${currentWord.w}" itself.`);
+    return;
+}
+
+      scores[activePlayer-1]++;
+      updateScores();
+      showResult(true,top.title,`by ${top.primary_artist.name} — point to ${names[activePlayer-1]}!`);
+      if(scores[activePlayer-1]>=winTarget){setTimeout(()=>showWinScreen(activePlayer),1200);}
+    }else{
+      showResult(false,"Not found","Genius doesn't recognise that song");
+    }
+  }catch(err){
+    showResult(false,"Fetch error","Could not reach Genius API — is the server running?");
+  }
+}
+
+function showResult(success,title,detail){
+  statusMsg.textContent="";
+  resultZone.className="result-zone vis "+(success?"suc":"fail");
+  resultTitle.textContent=title;
+  resultDetail.textContent=detail;
+  nextBtn.classList.add("vis");
+}
+
+function showWinScreen(p){
+  mainGame.style.display="none";
+  winScreen.classList.add("vis");
+  winCrown.className="win-crown "+(p===1?"p1c":"p2c");
+  winName.textContent=names[p-1]+" wins!";
+  winSub.textContent=`${scores[p-1]} points — first to ${winTarget}. Well played!`;
+}
+
+nextBtn.addEventListener("click",loadNewWord);
+playAgainBtn.addEventListener("click",()=>{
+  scores=[0,0];
+  winScreen.classList.remove("vis");
+  nameSetup.style.display="block";
+});
+
+buzzP1.addEventListener("click",()=>buzz(1));
+buzzP2.addEventListener("click",()=>buzz(2));
+
+document.addEventListener("keydown",e=>{
+  const tag=document.activeElement.tagName;
+  if(tag==="INPUT"||tag==="TEXTAREA")return;
+  if(e.key==="q"||e.key==="Q"){if(!buzzP1.disabled){e.preventDefault();buzz(1);}}
+  if(e.key==="p"||e.key==="P"){if(!buzzP2.disabled){e.preventDefault();buzz(2);}}
+});
+</script>
+</body>
+</html>
