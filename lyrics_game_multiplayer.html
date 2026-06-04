@@ -160,10 +160,12 @@ body{background:#1a1a1a;color:#e0e0e0;font-family:sans-serif}
   </div>
 
   <div id="win-screen">
-    <div id="win-crown" class="p1c">★</div>
-    <div id="win-name">Blue wins!</div>
-    <div id="win-sub">First to reach the target — well played</div>
-    <button id="play-again-btn">Play again</button>
+  <div id="win-crown" class="p1c">★</div>
+  <div id="win-name">Blue wins!</div>
+  <div id="win-sub">First to reach the target — well played</div>
+  <button id="play-again-btn">Play again</button>
+  <div style="margin-top:12px">
+    <a href="index.html" style="color:#8a8894;text-decoration:none">← Exit to Main Menu</a>
   </div>
 </div>
 
@@ -432,16 +434,18 @@ if (normalize(songGuess) === normalize(currentWord.w)) {
     return;
 }
 
-      scores[activePlayer-1]++;
-      updateScores();
-      showResult(true,top.title,`by ${top.primary_artist.name} — point to ${names[activePlayer-1]}!`);
-      if(scores[activePlayer-1]>=winTarget){setTimeout(()=>showWinScreen(activePlayer),1200);}
-    }else{
-      showResult(false,"Not found","Genius doesn't recognise that song");
-    }
-  }catch(err){
-    showResult(false,"Fetch error","Could not reach Genius API — is the server running?");
-  }
+scores[activePlayer-1]++;
+updateScores();
+showResult(true,top.title,`by ${top.primary_artist.name} — point to ${names[activePlayer-1]}!`);
+if(scores[activePlayer-1]>=winTarget){setTimeout(()=>showWinScreen(activePlayer),1200);}
+}
+else{
+showResult(false,"Not found","Genius doesn't recognise that song");
+}
+}
+catch(err){
+showResult(false,"Fetch error","Could not reach Genius API — is the server running?");
+}
 }
 
 function showResult(success,title,detail){
@@ -458,6 +462,7 @@ function showWinScreen(p){
   winCrown.className="win-crown "+(p===1?"p1c":"p2c");
   winName.textContent=names[p-1]+" wins!";
   winSub.textContent=`${scores[p-1]} points — first to ${winTarget}. Well played!`;
+  // If you want an exit link, add it to the HTML win-screen div instead
 }
 
 nextBtn.addEventListener("click",loadNewWord);
