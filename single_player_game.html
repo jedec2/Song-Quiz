@@ -10,92 +10,94 @@
 <body>
 <div id="game">
 
-    <div id="setup-mode">
+  <!-- SCREEN 1: Mode select -->
+  <div id="setup-mode">
     <h3>Welcome to the Word Guessing Game</h3>
-    <p style="color:#aaa; margin-bottom:15px;">Select your game mode:</p>
+    <p style="color:#aaa;margin-bottom:15px;">Select your game mode:</p>
     <div id="mode-select">
-        <button class="mode-btn" data-mode="streak">Streak Mode (Keep Playing)</button>
-        <button class="mode-btn" data-mode="timed">Timed Challenge</button>
+      <button class="mode-btn" data-mode="streak">♾ Streak Mode</button>
+      <button class="mode-btn" data-mode="timed">⏱ Timed Challenge</button>
     </div>
-</div>
+  </div>
 
-<div id="name-setup" style="background:#2a2a2a;border:0.5px solid #444;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:none;">
+  <!-- SCREEN 2: Name + options (shown after mode picked) -->
+  <div id="name-setup" style="display:none;background:#2a2a2a;border:0.5px solid #444;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;">
     <div class="name-row">
-        <div>
-            <label>Your name</label>
-            <input class="p1-inp" id="name-p1" type="text" value="Me" maxlength="16" />
-        </div>
-        <div></div>
+      <div>
+        <label>Your name</label>
+        <input class="p1-inp" id="name-p1" type="text" value="Me" maxlength="16" />
+      </div>
     </div>
-    <div id="win-row">
+
+    <!-- Streak options -->
+    <div id="streak-options">
+      <div id="win-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
         <label>First to</label>
-        <input id="win-target" type="number" min="1" max="20" value="5" />
+        <input id="win-target" type="number" min="1" max="20" value="5" style="width:64px;padding:7px 10px;border-radius:8px;border:0.5px solid #555;font-size:14px;background:#1a1a1a;color:#e0e0e0;" />
         <label>points wins</label>
+      </div>
     </div>
+
+    <!-- Timed options (hidden until timed mode selected) -->
+    <div id="timed-options" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <label>Time limit</label>
+        <input id="time-limit" type="number" min="10" max="300" value="60" style="width:64px;padding:7px 10px;border-radius:8px;border:0.5px solid #555;font-size:14px;background:#1a1a1a;color:#e0e0e0;" />
+        <label>seconds</label>
+      </div>
+    </div>
+
     <button id="start-game-btn">Start Game →</button>
-</div>
+  </div>
 
-        <div id="name-setup" style="margin-top: 20px; display: none;">
-            <h4>Player Name & Target</h4>
-            <div class="name-row">
-                <div>
-                    <label>Your name</label>
-                    <input class="p1-inp" id="name-p1" type="text" value="Me" maxlength="16" />
-                </div>
-                <div></div> 
-            </div>
-            <div id="win-row">
-                <label>First to</label>
-                <input id="win-target" type="number" min="1" max="20" value="5" />
-                <label>points wins</label>
-            </div>
-            <button id="start-game-btn">Start Game →</button>
-        </div>
+  <!-- SCREEN 3: Main game -->
+  <div id="main-game" style="display:none">
+    <div id="stage">
+      <div id="prompt-label">Name a song that contains this word</div>
+      <div id="word-display">—</div>
+      <div id="cat-tag">buzz in to start</div>
+      <div id="win-progress"></div>
     </div>
 
-    <div id="main-game" style="display:none">
-        <div id="stage">
-            <div id="prompt-label">Name a song that contains this word</div>
-            <div id="word-display">—</div>
-            <div id="cat-tag">buzz in to start</div>
-            <div id="win-progress"></div>
+    <div class="players">
+      <div class="pcard p1a" id="card-p1">
+        <div class="score-area">
+          <div class="score-num" id="score-p1">0</div>
+          <div class="score-pips" id="pips-p1"></div>
         </div>
-
-        <div class="players">
-            <div class="pcard p1a" id="card-p1">
-                <div class="score-area">
-                    <div class="score-num" id="score-p1">0</div>
-                    <div class="score-pips" id="pips-p1"></div>
-                </div>
-                <div class="plabel">Player 1</div>
-                <div class="pname" id="label-p1">Me</div>
-                <button class="buzz-btn p1" id="buzz-p1">⚡ Buzz</button>
-                <div class="key-hint">press Q or click buzz</div>
-            </div>
-        </div>
-
-        <div id="input-zone">
-            <div id="active-banner" class="p1">Player 1 — type a song title</div>
-            <input id="song-input" type="text" placeholder="Type a song title..." autocomplete="off" />
-            <div id="timer-wrap"><div id="timer-bar"></div></div>
-            <button id="submit-btn" disabled>Submit</button>
-        </div>
-
-        <div id="result-zone">
-            <div id="result-title">—</div>
-            <div id="result-detail">—</div>
-        </div>
-
-        <div id="status-msg"></div>
-        <button id="next-btn">Next word →</button>
+        <div class="plabel">Player</div>
+        <div class="pname" id="label-p1">Me</div>
+        <button class="buzz-btn p1" id="buzz-p1">⚡ Buzz</button>
+        <div class="key-hint">press Q or click buzz</div>
+      </div>
     </div>
 
-    <div id="win-screen">
-        <div id="win-crown" class="p1c">★</div>
-        <div id="win-name">Me wins!</div>
-        <div id="win-sub">First to reach the target — well played</div>
-        <button id="play-again-btn">Play again</button>
+    <div id="input-zone">
+      <div id="active-banner" class="p1">Type a song title</div>
+      <input id="song-input" type="text" placeholder="Type a song title..." autocomplete="off" />
+      <div id="timer-wrap"><div id="timer-bar"></div></div>
+      <button id="submit-btn" disabled>Submit</button>
     </div>
+
+    <div id="result-zone">
+      <div id="result-title">—</div>
+      <div id="result-detail">—</div>
+    </div>
+
+    <div id="status-msg"></div>
+    <button id="next-btn">Next word →</button>
+  </div>
+
+  <!-- SCREEN 4: Win/end screen -->
+  <div id="win-screen">
+    <div id="win-crown" class="p1c">★</div>
+    <div id="win-name">Game Over</div>
+    <div id="win-sub">Well played!</div>
+    <button id="play-again-btn">Play again</button>
+    <div style="margin-top:12px">
+      <a href="index.html" style="color:#8a8894;text-decoration:none">← Exit to Main Menu</a>
+    </div>
+  </div>
 
 </div>
 </body>
