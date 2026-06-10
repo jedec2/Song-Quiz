@@ -276,7 +276,7 @@ async function submitAnswer() {
         ? guessWords.filter(w => actualNorm.includes(w)).length / guessWords.length
         : 0;
 
-      if (matchRatio < 0.95) {
+      if (matchRatio<1) {
         showResult(false, 'No match', `Genius found "${top.title}" — not quite!`);
         handleWrong(); return;
       }
