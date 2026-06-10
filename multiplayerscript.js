@@ -113,7 +113,7 @@
 
     let buzzTimerInterval=null;
     let buzzTimeLeft=30;
-
+    //buzztimer
     function startBuzzTimer(){
     clearInterval(buzzTimerInterval);
     buzzTimeLeft=30;
@@ -191,7 +191,7 @@
     songInput.focus();
     startTimer();
     }
-
+    //5 seconds to type
     function startTimer(){
     timerBar.style.width="100%";
     clearInterval(timerInterval);
@@ -202,17 +202,17 @@
         if(r<=0){clearInterval(timerInterval);timeUp();}
     },50);
     }
-
+    //handles behavior of the typingtimer
     function resetTimer(){clearInterval(timerInterval);startTimer();}
     function clearTimer(){clearInterval(timerInterval);timerInterval=null;}
-
+    //runs when you run out of time
     function timeUp(){
     songInput.disabled=true;
     submitBtn.disabled=true;
     statusMsg.textContent="time's up!";
     showResult(false,"Time ran out","No points awarded");
     }
-
+    //timer reset
     songInput.addEventListener("input",()=>{
     if(!activePlayer)return;
     resetTimer();

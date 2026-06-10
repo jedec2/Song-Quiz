@@ -222,7 +222,15 @@ function startAnswerTimer() {
     $('timer-bar').style.width = (ratio * 100) + '%';
     if (ratio <= 0) { clearInterval(answerTimer); onTimeUp(); }
   }, 50);
+
 }
+
+function resetTimer(){clearInterval(timerInterval);startAnswerTimer();}
+$('song-input').addEventListener("input",()=>{
+if(!buzzLocked)return;
+resetTimer();
+});
+
 
 function onTimeUp() {
   $('song-input').disabled = true;
