@@ -1,4 +1,4 @@
-// ── DATA ──
+//array of words
 const WORDS = [
   {w:"fire",cat:"emotion"},{w:"rain",cat:"weather"},{w:"heart",cat:"emotion"},
   {w:"night",cat:"time"},{w:"love",cat:"emotion"},{w:"road",cat:"journey"},
@@ -52,25 +52,23 @@ const WORDS = [
   {w:"wonder",cat:"emotion"},{w:"world",cat:"abstract"},{w:"young",cat:"quality"}
 ];
 
-// ── STATE ──
-let mode = null;           // 'streak' | 'timed'
+//variable declarations, not separated by ','
+let mode = null;      
 let playerName = 'Me';
 let score = 0;
 let winTarget = 5;
-let timeLimit = 60;        // timed mode: total seconds
+let timeLimit = 60;        
 let globalTimeLeft = 0;
 let currentWord = null;
 let buzzLocked = false;
 let gameActive = false;
-
 let answerTimer = null;
 let buzzCountdown = null;
 let globalTimer = null;
 
-// ── DOM ──
 const $ = id => document.getElementById(id);
 
-// ── SCREEN MANAGEMENT ──
+//determines what's shown on screen with the '?' operator
 function showScreen(name) {
   $('setup-mode').style.display  = name === 'setup'  ? 'block' : 'none';
   $('name-setup').style.display  = name === 'options' ? 'block' : 'none';
@@ -78,7 +76,7 @@ function showScreen(name) {
   $('win-screen').style.display  = name === 'end'    ? 'block' : 'none';
 }
 
-// ── SETUP: mode buttons ──
+//gamemode selector
 document.getElementById('mode-select').addEventListener('click', e => {
   if (!e.target.classList.contains('mode-btn')) return;
   mode = e.target.dataset.mode;
@@ -87,7 +85,7 @@ document.getElementById('mode-select').addEventListener('click', e => {
   showScreen('options');
 });
 
-// ── SETUP: start button ──
+//game start
 $('start-game-btn').addEventListener('click', () => {
   playerName = $('name-p1').value.trim() || 'Me';
   $('label-p1').textContent = playerName;
@@ -107,7 +105,7 @@ $('start-game-btn').addEventListener('click', () => {
   loadNewWord();
 });
 
-// ── GLOBAL TIMER (timed mode only) ──
+//timed mode countdown timer
 function startGlobalTimer() {
   clearInterval(globalTimer);
   if (mode !== 'timed') {
@@ -124,14 +122,14 @@ function startGlobalTimer() {
     }
   }, 1000);
 }
-
+//updating the display to maintain pressure
 function updateTimerDisplay() {
   if (mode === 'timed') {
     $('win-progress').textContent = `⏱ ${globalTimeLeft}s remaining`;
   }
 }
 
-// ── SCORE ──
+//updating score as needed-
 function updateScoreDisplay() {
   $('score-p1').textContent = score;
   const pips = $('pips-p1');
@@ -145,7 +143,7 @@ function updateScoreDisplay() {
   }
 }
 
-// ── WORD ──
+//random word
 function loadNewWord() {
   if (!gameActive) return;
   $('word-display').classList.add('flash');
@@ -157,6 +155,7 @@ function loadNewWord() {
     startBuzzCountdown();
   }, 200);
 }
+    //round reset w/ elements disabled (can't interact)
 
 function resetRound() {
   clearInterval(answerTimer);
@@ -174,7 +173,8 @@ function resetRound() {
   $('cat-tag').textContent = currentWord.cat;
 }
 
-// ── BUZZ COUNTDOWN (30s to buzz) ──
+//buzzer that is called by a buzz keystroke; disables buzzing for everyone and allows the player to start inputting while reassigning the class of the input box so that the player's guess is attributed to them
+
 function startBuzzCountdown() {
   let t = 30;
   $('cat-tag').textContent = `${currentWord.cat} — ${t}s`;
@@ -198,7 +198,7 @@ function startBuzzCountdown() {
   }, 1000);
 }
 
-// ── BUZZ IN ──
+//buzzer
 function doBuzz() {
   if (buzzLocked || !gameActive) return;
   clearInterval(buzzCountdown);
@@ -212,7 +212,7 @@ function doBuzz() {
   startAnswerTimer();
 }
 
-// ── ANSWER TIMER (5s) ──
+//10s to answer (doesn't reset)
 function startAnswerTimer() {
   $('timer-bar').style.width = '100%';
   clearInterval(answerTimer);
@@ -224,14 +224,14 @@ function startAnswerTimer() {
   }, 50);
 
 }
-
+//resets timer
 function resetTimer(){clearInterval(timerInterval);startAnswerTimer();}
 $('song-input').addEventListener("input",()=>{
 if(!buzzLocked)return;
 resetTimer();
 });
 
-
+//ends round when player is out of time
 function onTimeUp() {
   $('song-input').disabled = true;
   $('submit-btn').disabled = true;
@@ -243,11 +243,12 @@ function onTimeUp() {
   }
 }
 
-// ── SUBMIT ──
+//answer checker
 async function submitAnswer() {
   clearInterval(answerTimer);
   $('song-input').disabled = true;
   $('submit-btn').disabled = true;
+    //checks to see if the songGuess is a real string
 
   const guess = $('song-input').value.trim();
   if (!guess || guess.length < 2) {
@@ -257,6 +258,7 @@ async function submitAnswer() {
   }
 
   $('status-msg').textContent = 'Checking with Genius...';
+    //uses try{ in case the genius api breaks its promise💔
 
   try {
     const resp = await fetch(`/api/search?q=${encodeURIComponent(guess)}`);
@@ -265,16 +267,21 @@ async function submitAnswer() {
     const hits = data.response?.hits;
 
     if (hits && hits.length > 0 && hits[0].type === 'song') {
+      //takes the top match from the json of returned data from the Genius API
       const top = hits[0].result;
+          //normalizing the syntax and formatting of both the guess and the top result  
+
       const norm = s => s.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
       const actualNorm = norm(top.title);
       const guessNorm  = norm(guess);
       const wordNorm   = norm(currentWord.w);
+    //check if enough words from the guess appear in the title to see whether a guess is any good
 
       const guessWords = guessNorm.split(/\s+/).filter(w => w.length > 1);
       const matchRatio = guessWords.length
         ? guessWords.filter(w => actualNorm.includes(w)).length / guessWords.length
         : 0;
+    //many outcomes
 
       if (matchRatio<1) {
         showResult(false, 'No match', `Genius found "${top.title}" — not quite!`);
@@ -289,7 +296,7 @@ async function submitAnswer() {
         handleWrong(); return;
       }
 
-      // ✓ Correct
+      //if correct
       score++;
       updateScoreDisplay();
       showResult(true, top.title, `by ${top.primary_artist.name} — point scored!`);
@@ -309,7 +316,7 @@ async function submitAnswer() {
     $('next-btn').classList.add('vis');
   }
 }
-
+//not used
 function handleWrong() {
   if (mode === 'streak') {
     setTimeout(endGame, 1200);
@@ -317,7 +324,7 @@ function handleWrong() {
     $('next-btn').classList.add('vis');
   }
 }
-
+//results sheet
 function showResult(success, title, detail) {
   $('status-msg').textContent = '';
   $('result-zone').className = 'result-zone vis ' + (success ? 'suc' : 'fail');
@@ -325,7 +332,7 @@ function showResult(success, title, detail) {
   $('result-detail').textContent = detail;
 }
 
-// ── END GAME ──
+//game reset and ending screen
 function endGame() {
   gameActive = false;
   clearInterval(globalTimer);
@@ -348,7 +355,7 @@ function endGame() {
   showScreen('end');
 }
 
-// ── EVENT LISTENERS ──
+//listeners for keystrokes and clicks
 $('buzz-p1').addEventListener('click', doBuzz);
 $('submit-btn').addEventListener('click', submitAnswer);
 $('song-input').addEventListener('keydown', e => { if (e.key === 'Enter' && !$('submit-btn').disabled) submitAnswer(); });
@@ -368,5 +375,5 @@ document.addEventListener('keydown', e => {
   if ((e.key === 'q' || e.key === 'Q') && !$('buzz-p1').disabled) { e.preventDefault(); doBuzz(); }
 });
 
-// Start on setup screen
+//setup screen
 showScreen('setup');
