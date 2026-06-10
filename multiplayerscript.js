@@ -233,7 +233,7 @@
     statusMsg.textContent="checking with Genius...";
 
     try{
-        const resp = await fetch(`/api/search?q=${encodeURIComponent(guess)}`);
+        const resp = await fetch(`/api/search?q=${encodeURIComponent(songGuess)}`);
         if(!resp.ok){showResult(false,"API error",`Genius returned ${resp.status}`);return;}
         const data=await resp.json();
         const hits=data.response.hits;
