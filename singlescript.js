@@ -218,7 +218,7 @@ function startAnswerTimer() {
   clearInterval(answerTimer);
   const start = Date.now();
   answerTimer = setInterval(() => {
-    const ratio = Math.max(0, 1 - (Date.now() - start) / 5000);
+    const ratio = Math.max(0, 1 - (Date.now() - start) / 10000);
     $('timer-bar').style.width = (ratio * 100) + '%';
     if (ratio <= 0) { clearInterval(answerTimer); onTimeUp(); }
   }, 50);
