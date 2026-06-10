@@ -100,17 +100,6 @@
     }
     }
 
-    function loadNewWord(){
-    wordDisplay.classList.add("flash");
-    setTimeout(()=>{
-        currentWord=WORDS[Math.floor(Math.random()*WORDS.length)];
-        wordDisplay.textContent=currentWord.w.toUpperCase();
-        catTag.textContent=currentWord.cat;
-        wordDisplay.classList.remove("flash");
-    },200);
-    resetRound();
-    }
-
     let buzzTimerInterval=null;
     let buzzTimeLeft=30;
     //buzztimer
