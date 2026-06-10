@@ -238,7 +238,7 @@
     const matchCount=guessWords.filter(w=>actualNorm.includes(w)).length;
     const matchRatio=matchCount/guessWords.length;
 
-    if(matchRatio<0.95){
+    if(matchRatio<1){
     showResult(false,"No match",`Genius found "${top.title}" — not quite!`);
     return;
     }
