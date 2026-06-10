@@ -197,7 +197,7 @@
     clearInterval(timerInterval);
     const start=Date.now();
     timerInterval=setInterval(()=>{
-        const r=Math.max(0,5-(Date.now()-start)/1000);
+        const r=Math.max(0,3-(Date.now()-start)/1000);
         timerBar.style.width=(r/5*100)+"%";
         if(r<=0){clearInterval(timerInterval);timeUp();}
     },50);
