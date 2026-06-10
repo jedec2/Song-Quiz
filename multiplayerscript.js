@@ -1,3 +1,4 @@
+    //array of words
     const WORDS=[
     {w:"fire",cat:"emotion"},{w:"rain",cat:"weather"},{w:"heart",cat:"emotion"},
     {w:"night",cat:"time"},{w:"love",cat:"emotion"},{w:"road",cat:"journey"},
@@ -50,7 +51,7 @@
     {w:"winter",cat:"time"},{w:"wish",cat:"abstract"},{w:"woman",cat:"person"},
     {w:"wonder",cat:"emotion"},{w:"world",cat:"abstract"},{w:"young",cat:"quality"}
     ];
-
+    //variable declarations, separated by ','
     let activePlayer=null, timerInterval=null, buzzLocked=false, currentWord=null;
     let scores=[0,0], winTarget=5, names=["Blue","Pink"];
 
@@ -69,7 +70,7 @@
     const statusMsg=$("status-msg"), nextBtn=$("next-btn");
     const winScreen=$("win-screen"), winCrown=$("win-crown"), winName=$("win-name"), winSub=$("win-sub");
     const playAgainBtn=$("play-again-btn");
-
+    //game setup declarations
     startGameBtn.addEventListener("click",()=>{
     names[0]=nameP1.value.trim()||"Blue";
     names[1]=nameP2.value.trim()||"Pink";
@@ -82,7 +83,7 @@
     updateScores();
     loadNewWord();
     });
-
+    //score updating
     function updateScores(){
     scoreP1.textContent=scores[0];
     scoreP2.textContent=scores[1];
@@ -99,7 +100,7 @@
         container.appendChild(d);
     }
     }
-
+    //timer variables
     let buzzTimerInterval=null;
     let buzzTimeLeft=30;
     //buzztimer
@@ -121,7 +122,7 @@
         }
     },1000);
     }
-
+    //new random word from the array
     function loadNewWord(){
     wordDisplay.classList.add("flash");
     setTimeout(()=>{
@@ -134,7 +135,7 @@
     startBuzzTimer();
     }
 
-
+    //round reset w/ elements disabled (can't interact)
     function resetRound(){
     clearInterval(buzzTimerInterval);
     clearTimer();
@@ -153,7 +154,7 @@
     cardP1.className="pcard";
     cardP2.className="pcard";
     }
-
+    //buzzer that is called by a buzz keystroke; disables buzzing for everyone and allows the player to start inputting while reassigning the class of the input box so that the player's guess is attributed to them
     function buzz(p){
     clearInterval(buzzTimerInterval);
     catTag.textContent=currentWord.cat;
@@ -207,37 +208,39 @@
     resetTimer();
     submitBtn.disabled=songInput.value.trim().length<2;
     });
-
+    //submission listener
     submitBtn.addEventListener("click",()=>submitAnswer());
     songInput.addEventListener("keydown",e=>{if(e.key==="Enter"&&!submitBtn.disabled)submitAnswer();});
-
+    //the goodest function in the code
     async function submitAnswer(){
     clearTimer();
     songInput.disabled=true;
     submitBtn.disabled=true;
-
+    //checks to see if the songGuess is a real string
     const songGuess=songInput.value.trim();
     if(!songGuess||songGuess.length<2){showResult(false,"Nothing entered","Type a song title!");return;}
 
     statusMsg.textContent="checking with Genius...";
-
+    //uses try{ in case the genius api breaks its promise💔
     try{
         const resp = await fetch(`/api/search?q=${encodeURIComponent(songGuess)}`);
         if(!resp.ok){showResult(false,"API error",`Genius returned ${resp.status}`);return;}
         const data=await resp.json();
         const hits=data.response.hits;
         if(hits&&hits.length>0&&hits[0].type==="song"){
+        //takes the top match from the json of returned data from the Genius API
         const top=hits[0].result;
-        const normalize=s=>s.toLowerCase().replace(/[^a-z0-9\s]/g,"").trim();
+    //normalizing the syntax and formatting of both the guess and the top result  
+    const normalize=s=>s.toLowerCase().replace(/[^a-z0-9\s]/g,"").trim();
     const actualNorm=normalize(top.title);
     const guessNorm=normalize(songGuess);
     const wordNorm=normalize(currentWord.w);
 
-    // Check if enough words from the guess appear in the title
+    //check if enough words from the guess appear in the title to see whether a guess is any good
     const guessWords=guessNorm.split(/\s+/).filter(w=>w.length>1);
     const matchCount=guessWords.filter(w=>actualNorm.includes(w)).length;
     const matchRatio=matchCount/guessWords.length;
-
+    //many outcomes
     if(matchRatio<1){
     showResult(false,"No match",`Genius found "${top.title}" — not quite!`);
     return;
@@ -264,7 +267,7 @@
     showResult(false,"Fetch error","Could not reach Genius API — is the server running?");
     }
     }
-
+    //score sheet
     function showResult(success,title,detail){
     statusMsg.textContent="";
     resultZone.className="result-zone vis "+(success?"suc":"fail");
@@ -272,7 +275,7 @@
     resultDetail.textContent=detail;
     nextBtn.classList.add("vis");
     }
-
+    //win screen
     function showWinScreen(p){
     mainGame.style.display="none";
     winScreen.classList.add("vis");
@@ -281,17 +284,17 @@
     winSub.textContent=`${scores[p-1]} points — first to ${winTarget}. Well played!`;
     // If you want an exit link, add it to the HTML win-screen div instead
     }
-
+    
     nextBtn.addEventListener("click",loadNewWord);
     playAgainBtn.addEventListener("click",()=>{
     scores=[0,0];
     winScreen.classList.remove("vis");
     nameSetup.style.display="block";
     });
-
+    //buzz detection by click
     buzzP1.addEventListener("click",()=>buzz(1));
     buzzP2.addEventListener("click",()=>buzz(2));
-
+    //buzz detection by keystroke
     document.addEventListener("keydown",e=>{
     const tag=document.activeElement.tagName;
     if(tag==="INPUT"||tag==="TEXTAREA")return;
